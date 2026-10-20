@@ -9,15 +9,25 @@ import {
 } from '../today'
 import { getOrCreateCompletion, todayKey } from '../storage'
 import { CheckItem, ChecklistSection } from './ChecklistSection'
+import { CheckInCalendar } from './CheckInCalendar'
 
 interface Props {
   state: AppState
   onToggle: (itemId: string) => void
   onSwapMeal: (slot: 'lunch' | 'dinner') => void
+  onMarkCheckIn: () => void
+  onUnmarkCheckIn: () => void
   onNavigate: (view: View) => void
 }
 
-export function Home({ state, onToggle, onSwapMeal, onNavigate }: Props) {
+export function Home({
+  state,
+  onToggle,
+  onSwapMeal,
+  onMarkCheckIn,
+  onUnmarkCheckIn,
+  onNavigate,
+}: Props) {
   const date = todayKey()
   const completion = getOrCreateCompletion(state.completions, date)
   const skin = skincareForToday(state.routines.skincare)
@@ -186,6 +196,12 @@ export function Home({ state, onToggle, onSwapMeal, onNavigate }: Props) {
           </>
         ) : null}
       </ChecklistSection>
+
+      <CheckInCalendar
+        checkIns={state.checkIns}
+        onMarkToday={onMarkCheckIn}
+        onUnmarkToday={onUnmarkCheckIn}
+      />
     </div>
   )
 }

@@ -370,9 +370,139 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* —— 每日打卡 / month calendar —— */
+
+.checkin-section {
+  margin-top: 2.25rem;
+  padding-top: 0.5rem;
+  animation: rise 0.55s ease both;
+  animation-delay: 0.22s;
+}
+
+.checkin-summary {
+  margin: 0 0 0.85rem;
+}
+
+.checkin-streak {
+  margin: 0;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.checkin-month-count {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.checkin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1.15rem;
+}
+
+.checkin-btn {
+  animation: checkin-pulse 2.4s ease-in-out infinite;
+}
+
+.checkin-done {
+  margin: 0;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+@keyframes checkin-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(15, 107, 92, 0.28);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(15, 107, 92, 0);
+  }
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+}
+
+.calendar-title {
+  margin: 0;
+  font-family: var(--font-brand);
+  font-size: 1.25rem;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.35rem;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0;
+}
+
+.calendar-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  animation: cell-in 0.35s ease both;
+}
+
+.calendar-cell.is-empty {
+  visibility: hidden;
+  animation: none;
+}
+
+.calendar-cell.is-today {
+  outline: 1.5px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.calendar-cell.is-checked {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.calendar-dot {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+@keyframes cell-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @media (max-width: 480px) {
   .edit-row {
     grid-template-columns: 1fr;
   }
 
+  .calendar-grid {
+    gap: 0.25rem;
+  }
 }
