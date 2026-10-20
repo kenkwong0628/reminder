@@ -7,6 +7,7 @@
 - 第一次設定：短問卷 → **AI**（client-side，你自己嘅 API key）或 **本地模板** 產出 routines → 接受後儲存
 - 或者 **貼上匯入** chat 產生嘅 setup JSON（亦支援 `?import=`）
 - 今日主畫面：由已儲存 routines 產生 checklist（唔會每日再 call AI）
+- **分類打卡**：護膚 · 行程 · 健身 · 飲食 分開勾；日曆用色點顯示；「已連續跟到目標 X 日」= 連續全日四類齊
 - 輕量改 routines／設定 API key
 - **冇** push 通知、登入、跨裝置同步
 
