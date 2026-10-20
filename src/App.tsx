@@ -1,5 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import type { AppState, IntakeAnswers, Routines, View } from './types'
+import type {
+  AppState,
+  CheckInCategory,
+  IntakeAnswers,
+  Routines,
+  View,
+} from './types'
 import {
   clearState,
   getOrCreateCompletion,
@@ -7,12 +13,7 @@ import {
   saveState,
   todayKey,
 } from './storage'
-import {
-  hasCheckIn,
-  isDayFullyChecked,
-  withCheckIn,
-  withoutCheckIn,
-} from './checkIn'
+import { toggleCategory, withAutoCategoryMarks } from './checkIn'
 import { decodeImportParam } from './importSetup'
 import { mealForToday } from './today'
 import { Home } from './components/Home'
@@ -84,19 +85,17 @@ export default function App() {
     saveState(state)
   }, [state])
 
-  // 今日 checklist 做晒但未打卡 → 自動補上（render 調整，唔用 effect）
+  // 某類 checklist 做晒但未打卡 → 自動補上該類（render 調整，唔用 effect）
   const today = todayKey()
-  if (
-    state.setupComplete &&
-    !hasCheckIn(state.checkIns, today) &&
-    isDayFullyChecked(state, today)
-  ) {
-    setState((prev) => {
-      if (hasCheckIn(prev.checkIns, today) || !isDayFullyChecked(prev, today)) {
-        return prev
-      }
-      return { ...prev, checkIns: withCheckIn(prev.checkIns, today) }
-    })
+  if (state.setupComplete) {
+    const auto = withAutoCategoryMarks(state, today)
+    if (auto !== state.checkIns) {
+      setState((prev) => {
+        const next = withAutoCategoryMarks(prev, today)
+        if (next === prev.checkIns) return prev
+        return { ...prev, checkIns: next }
+      })
+    }
   }
 
   function toggleItem(itemId: string) {
@@ -111,27 +110,17 @@ export default function App() {
           [date]: { ...current, checked },
         },
       }
-      // 做晒今日 checklist → 自動打卡（唔會自動取消）
-      if (isDayFullyChecked(next, date)) {
-        next.checkIns = withCheckIn(next.checkIns, date)
-      }
+      // 做晒某一類 → 自動打卡該類（唔會自動取消）
+      next.checkIns = withAutoCategoryMarks(next, date)
       return next
     })
   }
 
-  function markCheckIn() {
+  function toggleCheckInCategory(category: CheckInCategory) {
     const date = todayKey()
     setState((prev) => ({
       ...prev,
-      checkIns: withCheckIn(prev.checkIns, date),
-    }))
-  }
-
-  function unmarkCheckIn() {
-    const date = todayKey()
-    setState((prev) => ({
-      ...prev,
-      checkIns: withoutCheckIn(prev.checkIns, date),
+      checkIns: toggleCategory(prev.checkIns, date, category),
     }))
   }
 
@@ -218,8 +207,7 @@ export default function App() {
         state={state}
         onToggle={toggleItem}
         onSwapMeal={swapMeal}
-        onMarkCheckIn={markCheckIn}
-        onUnmarkCheckIn={unmarkCheckIn}
+        onToggleCategory={toggleCheckInCategory}
         onNavigate={setView}
       />
     )

@@ -1,6 +1,9 @@
 import {
+  CHECK_IN_CATEGORIES,
   type AppSettings,
   type AppState,
+  type CategoryCheckIns,
+  type CheckInCategory,
   type DailyCompletion,
   type Routines,
   defaultAppState,
@@ -8,12 +11,48 @@ import {
 } from './types'
 
 const STORAGE_KEY = 'reminder.app.v1'
+const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/
+
+function isCategory(value: unknown): value is CheckInCategory {
+  return (
+    typeof value === 'string' &&
+    (CHECK_IN_CATEGORIES as readonly string[]).includes(value)
+  )
+}
+
+/** Migrate legacy `checkIns: string[]` (whole-day) → per-category map. */
+export function migrateCheckIns(raw: unknown): CategoryCheckIns {
+  if (raw == null) return {}
+
+  // Legacy: whole-day dates → mark all four categories
+  if (Array.isArray(raw)) {
+    const out: CategoryCheckIns = {}
+    for (const entry of raw) {
+      if (typeof entry === 'string' && DATE_KEY_RE.test(entry)) {
+        out[entry] = [...CHECK_IN_CATEGORIES]
+      }
+    }
+    return out
+  }
+
+  if (typeof raw !== 'object') return {}
+
+  const out: CategoryCheckIns = {}
+  for (const [date, cats] of Object.entries(raw as Record<string, unknown>)) {
+    if (!DATE_KEY_RE.test(date) || !Array.isArray(cats)) continue
+    const next = [...new Set(cats.filter(isCategory))]
+    if (next.length > 0) out[date] = next
+  }
+  return out
+}
 
 export function loadState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return defaultAppState()
-    const parsed = JSON.parse(raw) as Partial<AppState>
+    const parsed = JSON.parse(raw) as Partial<AppState> & {
+      checkIns?: unknown
+    }
     return {
       ...defaultAppState(),
       ...parsed,
@@ -26,9 +65,7 @@ export function loadState(): AppState {
         ...(parsed.settings ?? {}),
       },
       completions: parsed.completions ?? {},
-      checkIns: Array.isArray(parsed.checkIns)
-        ? parsed.checkIns.filter((d): d is string => typeof d === 'string')
-        : [],
+      checkIns: migrateCheckIns(parsed.checkIns),
     }
   } catch {
     return defaultAppState()

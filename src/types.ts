@@ -2,6 +2,26 @@ export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6 // Sun–Sat
 
 export type DayPart = 'am' | 'pm' | 'any'
 
+/** Checklist sections that can be打卡 separately */
+export type CheckInCategory = 'skincare' | 'schedule' | 'fitness' | 'meals'
+
+export const CHECK_IN_CATEGORIES: readonly CheckInCategory[] = [
+  'skincare',
+  'schedule',
+  'fitness',
+  'meals',
+] as const
+
+export const CATEGORY_LABELS: Record<CheckInCategory, string> = {
+  skincare: '護膚',
+  schedule: '行程',
+  fitness: '健身',
+  meals: '飲食',
+}
+
+/** date (YYYY-MM-DD) → which categories were勾完 that day */
+export type CategoryCheckIns = Record<string, CheckInCategory[]>
+
 export interface SkincareStep {
   id: string
   name: string
@@ -78,8 +98,11 @@ export interface AppState {
   routines: Routines
   settings: AppSettings
   completions: Record<string, DailyCompletion>
-  /** YYYY-MM-DD dates the user checked in（打卡） */
-  checkIns: string[]
+  /**
+   * Per-category打卡 by date.
+   * Legacy whole-day `string[]` is migrated on load → all four categories.
+   */
+  checkIns: CategoryCheckIns
 }
 
 export type View = 'home' | 'setup' | 'routines' | 'settings'
@@ -113,5 +136,5 @@ export const defaultAppState = (): AppState => ({
   routines: defaultRoutines(),
   settings: defaultSettings(),
   completions: {},
-  checkIns: [],
+  checkIns: {},
 })

@@ -1,4 +1,4 @@
-import type { AppState, View } from '../types'
+import type { AppState, CheckInCategory, View } from '../types'
 import {
   fitnessForToday,
   formatCantoneseDate,
@@ -8,6 +8,7 @@ import {
   skincareForToday,
 } from '../today'
 import { getOrCreateCompletion, todayKey } from '../storage'
+import { goalStreak } from '../checkIn'
 import { CheckItem, ChecklistSection } from './ChecklistSection'
 import { CheckInCalendar } from './CheckInCalendar'
 
@@ -15,8 +16,7 @@ interface Props {
   state: AppState
   onToggle: (itemId: string) => void
   onSwapMeal: (slot: 'lunch' | 'dinner') => void
-  onMarkCheckIn: () => void
-  onUnmarkCheckIn: () => void
+  onToggleCategory: (category: CheckInCategory) => void
   onNavigate: (view: View) => void
 }
 
@@ -24,8 +24,7 @@ export function Home({
   state,
   onToggle,
   onSwapMeal,
-  onMarkCheckIn,
-  onUnmarkCheckIn,
+  onToggleCategory,
   onNavigate,
 }: Props) {
   const date = todayKey()
@@ -48,6 +47,7 @@ export function Home({
 
   const skinEmpty =
     skin.am.length + skin.pm.length + skin.any.length === 0
+  const streak = goalStreak(state.checkIns, date)
 
   return (
     <div className="page home-page">
@@ -55,6 +55,11 @@ export function Home({
         <p className="brand">Reminder</p>
         <p className="date-line">{formatCantoneseDate()}</p>
         <h1 className="greeting">{greetingForHour()}，今日就跟住做啦</h1>
+        <p className="home-streak" role="status">
+          {streak > 0
+            ? `已連續跟到目標 ${streak} 日`
+            : '未有連續全日 — 四類都勾完就計'}
+        </p>
       </header>
 
       <nav className="top-nav" aria-label="主要導覽">
@@ -199,8 +204,7 @@ export function Home({
 
       <CheckInCalendar
         checkIns={state.checkIns}
-        onMarkToday={onMarkCheckIn}
-        onUnmarkToday={onUnmarkCheckIn}
+        onToggleCategory={onToggleCategory}
       />
     </div>
   )
