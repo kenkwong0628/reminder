@@ -5,9 +5,24 @@
 ## MVP 做咗咩
 
 - 第一次設定：短問卷 → **AI**（client-side，你自己嘅 API key）或 **本地模板** 產出 routines → 接受後儲存
+- 或者 **貼上匯入** chat 產生嘅 setup JSON（亦支援 `?import=`）
 - 今日主畫面：由已儲存 routines 產生 checklist（唔會每日再 call AI）
 - 輕量改 routines／設定 API key
 - **冇** push 通知、登入、跨裝置同步
+
+## 匯入 setup JSON
+
+1. 開站 → 第一次設定畫面撳 **貼上匯入**（或者設定頁同一掣）
+2. 貼上符合 schema 嘅 JSON（可連 markdown ` ```json ` fence）→ **匯入並開始用**
+3. App 會寫入 `localStorage` key `reminder.app.v1`（`setupComplete: true` + routines），然後顯示今日 checklist
+
+網址參數（適合短 payload）：
+
+```
+https://kenkwong0628.github.io/reminder/?import=<URI-encoded-JSON>
+```
+
+亦接受 base64／base64url 編碼嘅同一份 JSON。匯入後會自動清走 query。
 
 ## 本機開發
 
