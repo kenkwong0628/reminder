@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { AppSettings, IntakeAnswers, Routines } from '../types'
 import { defaultIntake } from '../types'
 import { proposeRoutines, type ProposeMode } from '../ai/proposeRoutines'
+import { ImportPaste } from './ImportPaste'
 
 interface Props {
   settings: AppSettings
@@ -103,7 +104,12 @@ export function SetupFlow({
       <h1>第一次設定</h1>
       <p className="lede">
         答幾條就得 — AI（或者本地模板）會幫你砌好護膚、行程、健身、飲食 routines。
+        如果你喺 chat 已經砌好 JSON，可以直接「貼上匯入」。
       </p>
+
+      <div className="import-entry">
+        <ImportPaste onImported={onComplete} />
+      </div>
 
       <label className="field">
         <span>皮膚想點？（例如保濕、去痘）</span>

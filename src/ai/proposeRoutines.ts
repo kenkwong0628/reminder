@@ -1,6 +1,6 @@
 import type { AppSettings, IntakeAnswers, Routines } from '../types'
 import { generateFromTemplate } from './templateGenerator'
-import { uid } from '../today'
+import { normalizeRoutines } from '../importSetup'
 
 const SYSTEM_PROMPT = `你係一個貼地嘅粵語生活助手。根據用家嘅簡單問卷，產出一組可重複使用嘅日常 routines（唔係只得今日一次）。
 必須回傳純 JSON（唔好 markdown），結構如下：
@@ -82,40 +82,4 @@ async function callOpenAICompatible(
 
   const parsed = JSON.parse(content) as Partial<Routines>
   return normalizeRoutines(parsed)
-}
-
-function normalizeRoutines(raw: Partial<Routines>): Routines {
-  return {
-    skincare: (raw.skincare ?? []).map((s, i) => ({
-      id: uid('skin'),
-      name: s.name || `步驟 ${i + 1}`,
-      dayPart: s.dayPart === 'pm' || s.dayPart === 'any' ? s.dayPart : 'am',
-      weekdays: s.weekdays,
-      order: typeof s.order === 'number' ? s.order : i,
-    })),
-    schedule: (raw.schedule ?? []).map((s) => ({
-      id: uid('sch'),
-      title: s.title || '行程',
-      time: s.time || undefined,
-      weekdays: s.weekdays,
-      date: s.date,
-    })),
-    fitness: (raw.fitness ?? []).map((f) => ({
-      id: uid('fit'),
-      name: f.name || '訓練',
-      weekdays: f.weekdays?.length ? f.weekdays : [1, 3, 5],
-      isRest: Boolean(f.isRest),
-      exercises: (f.exercises ?? []).map((e) => ({
-        id: uid('ex'),
-        name: e.name || '動作',
-        detail: e.detail,
-      })),
-    })),
-    meals: (raw.meals ?? []).map((m) => ({
-      id: uid('meal'),
-      name: m.name || '餐',
-      slot: m.slot === 'dinner' ? 'dinner' : 'lunch',
-      weekdays: m.weekdays,
-    })),
-  }
 }

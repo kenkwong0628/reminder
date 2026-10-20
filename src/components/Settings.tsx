@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { AppSettings, View } from '../types'
+import type { AppSettings, IntakeAnswers, Routines, View } from '../types'
+import { ImportPaste } from './ImportPaste'
 
 interface Props {
   settings: AppSettings
@@ -7,6 +8,7 @@ interface Props {
   onNavigate: (view: View) => void
   onClearAll: () => void
   onRerunSetup: () => void
+  onImportSetup: (intake: IntakeAnswers, routines: Routines) => void
 }
 
 export function Settings({
@@ -15,6 +17,7 @@ export function Settings({
   onNavigate,
   onClearAll,
   onRerunSetup,
+  onImportSetup,
 }: Props) {
   const [settings, setSettings] = useState<AppSettings>({ ...initial })
   const [saved, setSaved] = useState(false)
@@ -85,11 +88,24 @@ export function Settings({
         </button>
       </div>
 
+      <ImportPaste
+        compact
+        onImported={(intake, routines) => {
+          if (
+            window.confirm(
+              '匯入會覆寫而家嘅 routines 同問卷答案，並標記第一次設定完成。繼續？',
+            )
+          ) {
+            onImportSetup(intake, routines)
+          }
+        }}
+      />
+
       <aside className="help-box">
         <h2>AI 點用</h2>
         <ul>
           <li>API key 只存 localStorage，唔會上傳到 Reminder 伺服器（呢個 app 係純靜態站）。</li>
-          <li>第一次設定可以揀「本地模板」完全唔使 key。</li>
+          <li>第一次設定可以揀「本地模板」完全唔使 key；或者「貼上匯入」chat JSON。</li>
           <li>用 AI 時會由你部瀏覽器直接打去你填嘅 API；注意 CORS／供應商限制。</li>
           <li>MVP 冇 push 通知。</li>
         </ul>

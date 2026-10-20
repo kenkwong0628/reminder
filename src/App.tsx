@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import type { AppState, IntakeAnswers, Routines, View } from './types'
 import {
   clearState,
@@ -7,6 +7,7 @@ import {
   saveState,
   todayKey,
 } from './storage'
+import { decodeImportParam } from './importSetup'
 import { mealForToday } from './today'
 import { Home } from './components/Home'
 import { SetupFlow } from './components/SetupFlow'
@@ -14,11 +15,64 @@ import { RoutinesEdit } from './components/RoutinesEdit'
 import { Settings } from './components/Settings'
 import './App.css'
 
+type Boot = {
+  state: AppState
+  view: View
+  notice: string | null
+}
+
+function bootApp(): Boot {
+  const loaded = loadState()
+  const params = new URLSearchParams(window.location.search)
+  const raw = params.get('import')
+  if (raw == null) {
+    return {
+      state: loaded,
+      view: loaded.setupComplete ? 'home' : 'setup',
+      notice: null,
+    }
+  }
+
+  params.delete('import')
+  const next =
+    params.toString().length > 0
+      ? `${window.location.pathname}?${params}`
+      : window.location.pathname
+  window.history.replaceState({}, '', next)
+
+  const result = decodeImportParam(raw)
+  if (!result.ok) {
+    return {
+      state: loaded,
+      view: loaded.setupComplete ? 'home' : 'setup',
+      notice: `匯入失敗：${result.error}`,
+    }
+  }
+
+  return {
+    state: {
+      ...loaded,
+      setupComplete: true,
+      intake: result.intake,
+      routines: result.routines,
+    },
+    view: 'home',
+    notice: '已由網址參數匯入設定。',
+  }
+}
+
+let cachedBoot: Boot | undefined
+
+function getBoot(): Boot {
+  if (!cachedBoot) cachedBoot = bootApp()
+  return cachedBoot
+}
+
 export default function App() {
-  const [state, setState] = useState<AppState>(() => loadState())
-  const [view, setView] = useState<View>(() =>
-    loadState().setupComplete ? 'home' : 'setup',
-  )
+  const boot = getBoot()
+  const [state, setState] = useState<AppState>(boot.state)
+  const [view, setView] = useState<View>(boot.view)
+  const [importNotice, setImportNotice] = useState<string | null>(boot.notice)
 
   useEffect(() => {
     saveState(state)
@@ -84,8 +138,9 @@ export default function App() {
     setView('setup')
   }
 
+  let body: ReactNode
   if (view === 'setup' || !state.setupComplete) {
-    return (
+    body = (
       <SetupFlow
         settings={state.settings}
         initialIntake={state.intake}
@@ -95,10 +150,8 @@ export default function App() {
         }
       />
     )
-  }
-
-  if (view === 'routines') {
-    return (
+  } else if (view === 'routines') {
+    body = (
       <RoutinesEdit
         routines={state.routines}
         onSave={(routines) => setState((prev) => ({ ...prev, routines }))}
@@ -106,26 +159,39 @@ export default function App() {
         onRerunSetup={() => setView('setup')}
       />
     )
-  }
-
-  if (view === 'settings') {
-    return (
+  } else if (view === 'settings') {
+    body = (
       <Settings
         settings={state.settings}
         onSave={(settings) => setState((prev) => ({ ...prev, settings }))}
         onNavigate={setView}
         onClearAll={clearAll}
         onRerunSetup={() => setView('setup')}
+        onImportSetup={completeSetup}
+      />
+    )
+  } else {
+    body = (
+      <Home
+        state={state}
+        onToggle={toggleItem}
+        onSwapMeal={swapMeal}
+        onNavigate={setView}
       />
     )
   }
 
   return (
-    <Home
-      state={state}
-      onToggle={toggleItem}
-      onSwapMeal={swapMeal}
-      onNavigate={setView}
-    />
+    <>
+      {importNotice ? (
+        <div className="import-toast" role="status">
+          <span>{importNotice}</span>
+          <button type="button" className="ghost" onClick={() => setImportNotice(null)}>
+            關閉
+          </button>
+        </div>
+      ) : null}
+      {body}
+    </>
   )
 }
