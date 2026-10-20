@@ -1,0 +1,32 @@
+{
+  "name": "Reminder",
+  "short_name": "Reminder",
+  "lang": "zh-Hant",
+  "description": "Reminder — 今日護膚、行程、健身、飲食 checklist",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#e8f0ec",
+  "theme_color": "#0f6b5c",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
