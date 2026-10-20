@@ -1,0 +1,57 @@
+:root {
+  --bg0: #e8f0ec;
+  --bg1: #f5f7f4;
+  --ink: #1a2420;
+  --ink-soft: #3d4a44;
+  --muted: #6b7a73;
+  --accent: #0f6b5c;
+  --accent-soft: #d5ebe5;
+  --line: rgba(26, 36, 32, 0.12);
+  --danger: #9b3b2e;
+  --surface: rgba(255, 255, 255, 0.55);
+  --radius: 12px;
+  --font-brand: 'Instrument Serif', 'Noto Serif TC', serif;
+  --font-body: 'Noto Sans TC', sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #cfe4dc 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #dce6ef 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg0), var(--bg1) 40%, #eef2ef);
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-width: 320px;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: var(--accent);
+}
