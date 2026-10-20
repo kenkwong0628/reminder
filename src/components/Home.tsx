@@ -148,38 +148,42 @@ export function Home({ state, onToggle, onSwapMeal, onNavigate }: Props) {
         onEmptyAction={() => onNavigate('routines')}
       >
         {lunch ? (
-          <li className="meal-row">
+          <>
             <CheckItem
               id={`meal_${lunch.id}`}
               label={`午餐：${lunch.name}`}
               checked={Boolean(completion.checked[`meal_${lunch.id}`])}
               onToggle={onToggle}
             />
-            <button
-              type="button"
-              className="swap-btn"
-              onClick={() => onSwapMeal('lunch')}
-            >
-              換一個
-            </button>
-          </li>
+            <li className="meal-swap">
+              <button
+                type="button"
+                className="swap-btn"
+                onClick={() => onSwapMeal('lunch')}
+              >
+                換一個午餐
+              </button>
+            </li>
+          </>
         ) : null}
         {dinner ? (
-          <li className="meal-row">
+          <>
             <CheckItem
               id={`meal_${dinner.id}`}
               label={`晚餐：${dinner.name}`}
               checked={Boolean(completion.checked[`meal_${dinner.id}`])}
               onToggle={onToggle}
             />
-            <button
-              type="button"
-              className="swap-btn"
-              onClick={() => onSwapMeal('dinner')}
-            >
-              換一個
-            </button>
-          </li>
+            <li className="meal-swap">
+              <button
+                type="button"
+                className="swap-btn"
+                onClick={() => onSwapMeal('dinner')}
+              >
+                換一個晚餐
+              </button>
+            </li>
+          </>
         ) : null}
       </ChecklistSection>
     </div>

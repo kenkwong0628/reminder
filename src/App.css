@@ -187,16 +187,9 @@
   padding: 0.5rem 0;
 }
 
-.meal-row {
+.meal-swap {
   list-style: none;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.meal-row .check-item {
-  margin: 0;
+  margin: -0.25rem 0 0.35rem 1.75rem;
 }
 
 .empty-block {
@@ -340,7 +333,4 @@
     grid-template-columns: 1fr;
   }
 
-  .meal-row {
-    grid-template-columns: 1fr;
-  }
 }
