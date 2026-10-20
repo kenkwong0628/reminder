@@ -7,6 +7,12 @@ import {
   saveState,
   todayKey,
 } from './storage'
+import {
+  hasCheckIn,
+  isDayFullyChecked,
+  withCheckIn,
+  withoutCheckIn,
+} from './checkIn'
 import { decodeImportParam } from './importSetup'
 import { mealForToday } from './today'
 import { Home } from './components/Home'
@@ -78,19 +84,55 @@ export default function App() {
     saveState(state)
   }, [state])
 
+  // 今日 checklist 做晒但未打卡 → 自動補上（render 調整，唔用 effect）
+  const today = todayKey()
+  if (
+    state.setupComplete &&
+    !hasCheckIn(state.checkIns, today) &&
+    isDayFullyChecked(state, today)
+  ) {
+    setState((prev) => {
+      if (hasCheckIn(prev.checkIns, today) || !isDayFullyChecked(prev, today)) {
+        return prev
+      }
+      return { ...prev, checkIns: withCheckIn(prev.checkIns, today) }
+    })
+  }
+
   function toggleItem(itemId: string) {
     const date = todayKey()
     setState((prev) => {
       const current = getOrCreateCompletion(prev.completions, date)
       const checked = { ...current.checked, [itemId]: !current.checked[itemId] }
-      return {
+      const next: AppState = {
         ...prev,
         completions: {
           ...prev.completions,
           [date]: { ...current, checked },
         },
       }
+      // 做晒今日 checklist → 自動打卡（唔會自動取消）
+      if (isDayFullyChecked(next, date)) {
+        next.checkIns = withCheckIn(next.checkIns, date)
+      }
+      return next
     })
+  }
+
+  function markCheckIn() {
+    const date = todayKey()
+    setState((prev) => ({
+      ...prev,
+      checkIns: withCheckIn(prev.checkIns, date),
+    }))
+  }
+
+  function unmarkCheckIn() {
+    const date = todayKey()
+    setState((prev) => ({
+      ...prev,
+      checkIns: withoutCheckIn(prev.checkIns, date),
+    }))
   }
 
   function swapMeal(slot: 'lunch' | 'dinner') {
@@ -176,6 +218,8 @@ export default function App() {
         state={state}
         onToggle={toggleItem}
         onSwapMeal={swapMeal}
+        onMarkCheckIn={markCheckIn}
+        onUnmarkCheckIn={unmarkCheckIn}
         onNavigate={setView}
       />
     )

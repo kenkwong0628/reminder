@@ -78,6 +78,8 @@ export interface AppState {
   routines: Routines
   settings: AppSettings
   completions: Record<string, DailyCompletion>
+  /** YYYY-MM-DD dates the user checked in（打卡） */
+  checkIns: string[]
 }
 
 export type View = 'home' | 'setup' | 'routines' | 'settings'
@@ -111,4 +113,5 @@ export const defaultAppState = (): AppState => ({
   routines: defaultRoutines(),
   settings: defaultSettings(),
   completions: {},
+  checkIns: [],
 })

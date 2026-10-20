@@ -26,6 +26,9 @@ export function loadState(): AppState {
         ...(parsed.settings ?? {}),
       },
       completions: parsed.completions ?? {},
+      checkIns: Array.isArray(parsed.checkIns)
+        ? parsed.checkIns.filter((d): d is string => typeof d === 'string')
+        : [],
     }
   } catch {
     return defaultAppState()
